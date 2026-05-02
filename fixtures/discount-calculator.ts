@@ -1,39 +1,21 @@
 // Calculates discounted prices for various customer tiers.
-// Intentionally written with duplication and nested branches for refactor practice.
+
+type Tier = "bronze" | "silver" | "gold" | "platinum";
+
+const DISCOUNT_RATES: Record<Tier, readonly [number, number, number]> = {
+  bronze:   [1.00, 0.97, 0.95],
+  silver:   [0.97, 0.93, 0.90],
+  gold:     [0.95, 0.90, 0.85],
+  platinum: [0.92, 0.85, 0.80],
+};
+
+const BRACKET_THRESHOLDS = [500, 1000] as const;
 
 export function calculateDiscount(tier: string, amount: number): number {
-  if (tier === "bronze") {
-    if (amount >= 1000) {
-      return amount * 0.95;
-    } else if (amount >= 500) {
-      return amount * 0.97;
-    } else {
-      return amount * 1.0;
-    }
-  } else if (tier === "silver") {
-    if (amount >= 1000) {
-      return amount * 0.90;
-    } else if (amount >= 500) {
-      return amount * 0.93;
-    } else {
-      return amount * 0.97;
-    }
-  } else if (tier === "gold") {
-    if (amount >= 1000) {
-      return amount * 0.85;
-    } else if (amount >= 500) {
-      return amount * 0.90;
-    } else {
-      return amount * 0.95;
-    }
-  } else if (tier === "platinum") {
-    if (amount >= 1000) {
-      return amount * 0.80;
-    } else if (amount >= 500) {
-      return amount * 0.85;
-    } else {
-      return amount * 0.92;
-    }
-  }
-  return amount;
+  const rates = DISCOUNT_RATES[tier as Tier];
+  if (!rates) return amount;
+
+  const bracket = BRACKET_THRESHOLDS.findIndex((t) => amount < t);
+  const rate = rates[bracket === -1 ? rates.length - 1 : bracket];
+  return amount * rate;
 }
