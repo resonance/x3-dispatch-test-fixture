@@ -1,39 +1,24 @@
 // Calculates discounted prices for various customer tiers.
-// Intentionally written with duplication and nested branches for refactor practice.
+
+type Tier = "bronze" | "silver" | "gold" | "platinum";
+
+const THRESHOLDS = [1000, 500, -Infinity] as const;
+
+const MULTIPLIERS: Record<Tier, readonly [number, number, number]> = {
+  bronze: [0.95, 0.97, 1.0],
+  silver: [0.9, 0.93, 0.97],
+  gold: [0.85, 0.9, 0.95],
+  platinum: [0.8, 0.85, 0.92],
+};
+
+function isTier(tier: string): tier is Tier {
+  return tier in MULTIPLIERS;
+}
 
 export function calculateDiscount(tier: string, amount: number): number {
-  if (tier === "bronze") {
-    if (amount >= 1000) {
-      return amount * 0.95;
-    } else if (amount >= 500) {
-      return amount * 0.97;
-    } else {
-      return amount * 1.0;
-    }
-  } else if (tier === "silver") {
-    if (amount >= 1000) {
-      return amount * 0.90;
-    } else if (amount >= 500) {
-      return amount * 0.93;
-    } else {
-      return amount * 0.97;
-    }
-  } else if (tier === "gold") {
-    if (amount >= 1000) {
-      return amount * 0.85;
-    } else if (amount >= 500) {
-      return amount * 0.90;
-    } else {
-      return amount * 0.95;
-    }
-  } else if (tier === "platinum") {
-    if (amount >= 1000) {
-      return amount * 0.80;
-    } else if (amount >= 500) {
-      return amount * 0.85;
-    } else {
-      return amount * 0.92;
-    }
+  if (!isTier(tier)) {
+    return amount;
   }
-  return amount;
+  const bracket = THRESHOLDS.findIndex((min) => amount >= min);
+  return amount * MULTIPLIERS[tier][bracket];
 }
