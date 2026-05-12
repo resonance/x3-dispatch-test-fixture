@@ -1,39 +1,25 @@
 // Calculates discounted prices for various customer tiers.
-// Intentionally written with duplication and nested branches for refactor practice.
+
+type Tier = "bronze" | "silver" | "gold" | "platinum";
+
+const HIGH_THRESHOLD = 1000;
+const MID_THRESHOLD = 500;
+
+const DISCOUNT_RATES: Record<Tier, { high: number; mid: number; low: number }> = {
+  bronze: { high: 0.95, mid: 0.97, low: 1.0 },
+  silver: { high: 0.9, mid: 0.93, low: 0.97 },
+  gold: { high: 0.85, mid: 0.9, low: 0.95 },
+  platinum: { high: 0.8, mid: 0.85, low: 0.92 },
+};
 
 export function calculateDiscount(tier: string, amount: number): number {
-  if (tier === "bronze") {
-    if (amount >= 1000) {
-      return amount * 0.95;
-    } else if (amount >= 500) {
-      return amount * 0.97;
-    } else {
-      return amount * 1.0;
-    }
-  } else if (tier === "silver") {
-    if (amount >= 1000) {
-      return amount * 0.90;
-    } else if (amount >= 500) {
-      return amount * 0.93;
-    } else {
-      return amount * 0.97;
-    }
-  } else if (tier === "gold") {
-    if (amount >= 1000) {
-      return amount * 0.85;
-    } else if (amount >= 500) {
-      return amount * 0.90;
-    } else {
-      return amount * 0.95;
-    }
-  } else if (tier === "platinum") {
-    if (amount >= 1000) {
-      return amount * 0.80;
-    } else if (amount >= 500) {
-      return amount * 0.85;
-    } else {
-      return amount * 0.92;
-    }
-  }
-  return amount;
+  const rates = DISCOUNT_RATES[tier as Tier];
+  if (!rates) return amount;
+
+  const rate =
+    amount >= HIGH_THRESHOLD ? rates.high
+    : amount >= MID_THRESHOLD ? rates.mid
+    : rates.low;
+
+  return amount * rate;
 }
