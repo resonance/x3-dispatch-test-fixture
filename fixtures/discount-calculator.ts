@@ -1,39 +1,19 @@
 // Calculates discounted prices for various customer tiers.
-// Intentionally written with duplication and nested branches for refactor practice.
+
+type Tier = "bronze" | "silver" | "gold" | "platinum";
+
+const TIER_RULES: Record<Tier, ReadonlyArray<readonly [number, number]>> = {
+  bronze:   [[1000, 0.95], [500, 0.97], [-Infinity, 1.00]],
+  silver:   [[1000, 0.90], [500, 0.93], [-Infinity, 0.97]],
+  gold:     [[1000, 0.85], [500, 0.90], [-Infinity, 0.95]],
+  platinum: [[1000, 0.80], [500, 0.85], [-Infinity, 0.92]],
+};
 
 export function calculateDiscount(tier: string, amount: number): number {
-  if (tier === "bronze") {
-    if (amount >= 1000) {
-      return amount * 0.95;
-    } else if (amount >= 500) {
-      return amount * 0.97;
-    } else {
-      return amount * 1.0;
-    }
-  } else if (tier === "silver") {
-    if (amount >= 1000) {
-      return amount * 0.90;
-    } else if (amount >= 500) {
-      return amount * 0.93;
-    } else {
-      return amount * 0.97;
-    }
-  } else if (tier === "gold") {
-    if (amount >= 1000) {
-      return amount * 0.85;
-    } else if (amount >= 500) {
-      return amount * 0.90;
-    } else {
-      return amount * 0.95;
-    }
-  } else if (tier === "platinum") {
-    if (amount >= 1000) {
-      return amount * 0.80;
-    } else if (amount >= 500) {
-      return amount * 0.85;
-    } else {
-      return amount * 0.92;
-    }
+  const rules = TIER_RULES[tier as Tier];
+  if (!rules) return amount;
+  for (const [minAmount, multiplier] of rules) {
+    if (amount >= minAmount) return amount * multiplier;
   }
   return amount;
 }
